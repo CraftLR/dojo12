@@ -78,12 +78,55 @@ impl<C: Cake> Cake for Nuts<C> {
   }
 }
 
+#[derive(Default)]
+struct Bundle {
+  inners: Vec<Box<dyn Cake>>,
+}
+
+impl Bundle {
+  pub fn add(&mut self, cake: impl Cake + 'static) {
+    self.inners.push(Box::new(cake))
+  }
+
+  pub fn price(&self) -> usize {
+    self.inners.iter().map(|c| c.price()).sum::<usize>() * 9 / 10
+  }
+}
+
 fn main() {}
 // tests module
 #[cfg(test)]
 mod tests {
   use super::*;
   use pretty_assertions::assert_eq;
+  #[test]
+  fn test_bundle() {
+    let mut bundle = Bundle::default();
+    bundle.add(Cookie);
+    assert_eq!(bundle.price(), 180)
+  }
+
+  #[test]
+  fn test_bundle_cookie_cupcake() {
+    let mut bundle = Bundle::default();
+    bundle.add(Cookie);
+    bundle.add(Cupcake);
+    assert_eq!(bundle.price(), 180 + 90)
+  }
+
+  #[test]
+  fn test_bundle_of_bundle() {
+
+    let mut subbundle = Bundle::default();
+    subbundle.add(Cookie);
+    subbundle.add(Cupcake);
+
+    let mut bundle = Bundle::default();
+    bundle.add(Cookie);
+    bundle.add(subbundle);
+
+    assert_eq!(bundle.price(), 180 + 90)
+  }
   #[test]
   fn test_cookie_price() {
     assert_eq!(Cookie.price(), 200)
