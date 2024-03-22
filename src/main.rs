@@ -81,11 +81,16 @@ impl<C: Cake> Cake for Nuts<C> {
 #[derive(Default)]
 struct Bundle {
   inners: Vec<Box<dyn Cake>>,
+  inners_bundle: Vec<Box<dyn Bundle>>,
 }
 
 impl Bundle {
   pub fn add(&mut self, cake: impl Cake + 'static) {
     self.inners.push(Box::new(cake))
+  }
+
+  pub fn add(&mut self, b: impl Bundle + 'static) {
+    self.inners_bundle.push(Box::new(b))
   }
 
   pub fn price(&self) -> usize {
